@@ -6,7 +6,6 @@ import Registration from './components/Registration';
 import HomePage from './HomePage';
 import AppointmentBooking from "./components/AppointmentBooking";
 import SignupPage from "./components/SignupPage";
-import SearchDoctor  from './components/SearchDoctor';
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -18,7 +17,6 @@ export default function App() {
           <Stack.Screen name="HomePage" component={HomePage} options={{ headerShown: false }}/>
           <Stack.Screen name="SignupPage" component={SignupPage} options={{ headerShown: false }}/>
           <Stack.Screen name="AppointmentBooking" component={AppointmentBooking} options={{ headerShown: false }}/>
-          <Stack.Screen name="SearchDoctor" component={SearchDoctor} options={{ headerShown: false }}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
