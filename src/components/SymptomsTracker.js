@@ -1,48 +1,38 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import Footer from './Footer';
 
 const SymptomsTracker = ({ navigation, route }) => {
   const [symptoms, setSymptoms] = useState('');
-  const [results, setResults] = useState('');
+  const [results, setResults] = useState([]);
   const [error, setError] = useState('');
   const { email } = route.params;
 
   const handleTrackSymptoms = () => {
     if (symptoms.trim() === '') {
       setError('Please enter symptoms.');
-      setResults('');
+      setResults([]);
     } else {
       setError('');
-      const simulatedResults = simulateResults(symptoms);
-      setResults(simulatedResults);
+      fetch('http://127.0.0.1:5000/symptom_checker', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ symptoms: symptoms })
+      })
+      .then(response => response.json())
+      .then(data => {
+        setResults(data.predicted_disease ? [data.predicted_disease] : []);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        setError('An error occurred. Please try again.');
+        setResults([]);
+      });
     }
   };
 
-  const simulateResults = (enteredSymptoms) => {
-    const symptomsArray = enteredSymptoms.toLowerCase().split(',').map(symptom => symptom.trim());
-    let results = '';
-    symptomsArray.forEach(symptom => {
-      switch (symptom) {
-        case 'fever':
-          results += 'Fever: Possible causes - Infection, Flu, COVID-19\n';
-          break;
-        case 'cough':
-          results += 'Cough: Possible causes - Common cold, Flu, Asthma\n';
-          break;
-        case 'headache':
-          results += 'Headache: Possible causes - Stress, Tension, Migraine\n';
-          break;
-        // Add more cases as needed...
-        default:
-          results += `${symptom}: No specific causes found.\n`;
-      }
-    });
-    return results.trim();
-  };
-
   const handleBack = () => {
-    // Navigate back to the patient home page with email
     navigation.navigate('PatientHome', { email: email });
   };
 
@@ -68,16 +58,17 @@ const SymptomsTracker = ({ navigation, route }) => {
 
       {error ? (
         <Text style={styles.errorText}>{error}</Text>
-      ) : (
+      ) : results.length > 0 ? (
         <View style={styles.resultsContainer}>
-          <Text style={styles.resultsHeading}>Results:</Text>
-          <Text style={styles.resultsText}>{results}</Text>
+          <Text style={styles.resultsHeading}>Predicted Disease:</Text>
+          {results.map((disease, index) => (
+            <Text key={index} style={styles.resultsText}>{disease}</Text>
+          ))}
         </View>
-      )}
+      ) : null}
       <TouchableOpacity style={styles.backButton} onPress={handleBack}>
         <Text style={styles.backButtonText}>Back</Text>
       </TouchableOpacity>
-      <Footer />
     </ScrollView>
   );
 };
