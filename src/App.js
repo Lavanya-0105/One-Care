@@ -14,6 +14,11 @@ import DoctorHome from './components/DoctorHome';
 import DoctorLogin from './components/DoctorLogin';
 import HealthResources from './components/HealthResources';
 import MeditationSession from './components/MeditationSession';
+import DietDisplay from './components/DietDisplay';
+import PrescriptionUpload from './components/PrescriptionUpload';
+import ChildVaccine from './components/ChildVaccine';
+import CalorieCount from './components/CalorieCount';
+import ManageAppointments from './components/ManageAppointments';
 const Stack = createStackNavigator();
 
 
@@ -25,6 +30,7 @@ export default function App() {
           <Stack.Screen name="PatientHome" component={PatientHome} options={{ headerShown: false }}/>
           <Stack.Screen name="SignupPage" component={SignupPage} options={{ headerShown: false }}/>
           <Stack.Screen name="AppointmentBooking" component={AppointmentBooking} options={{ headerShown: false }}/>
+          <Stack.Screen name="ManageAppointments" component={ManageAppointments} options={{ headerShown: false }}/>
           <Stack.Screen name="SearchDoctor" component={SearchDoctor} options={{ headerShown: false }}/>
           <Stack.Screen name="MedicationReminder" component={MedicationReminder} options={{ headerShown: false }}/>
           <Stack.Screen name="LabTestBooking" component={LabTestBooking} options={{ headerShown: false }}/>
@@ -34,6 +40,10 @@ export default function App() {
           <Stack.Screen name="DoctorLogin" component={DoctorLogin} options={{ headerShown: false }}/>
           <Stack.Screen name="SymptomsTracker" component={SymptomsTracker} options={{ headerShown: false }}/>
           <Stack.Screen name="MeditationSession" component={MeditationSession} options={{ headerShown: false }}/>
+          <Stack.Screen name="DietDisplay" component={DietDisplay} options={{ headerShown: false }}/>
+          <Stack.Screen name="PrescriptionUpload" component={PrescriptionUpload} options={{ headerShown: false }}/>
+          <Stack.Screen name="ChildVaccine" component={ChildVaccine} options={{ headerShown: false }}/>
+          <Stack.Screen name="CalorieCount" component={CalorieCount} options={{ headerShown: false }}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

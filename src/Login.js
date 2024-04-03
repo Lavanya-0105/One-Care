@@ -8,6 +8,7 @@ import { GoogleAuthProvider } from 'firebase/auth';
 import { signInWithPopup } from 'firebase/auth';
 import Footer from './components/Footer'; 
 
+
 function Login({ navigation }) {
  const [email, setEmail] = useState('');
  const [password, setPassword] = useState('');
@@ -28,6 +29,7 @@ function Login({ navigation }) {
 })
 
 };
+
 
  const handleSignup = () => {
    navigation.navigate('SignupPage');

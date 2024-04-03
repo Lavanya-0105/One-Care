@@ -19,15 +19,15 @@ const DoctorHome = ({ route }) => {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        // Query to fetch doctor's document
+        
         const doctorQuery = query(collection(db, 'doctors'), where('name', '==', doctorName));
         const doctorSnapshot = await getDocs(doctorQuery);
 
         if (!doctorSnapshot.empty) {
-          // Get the doctor's ID
+ 
           const doctorId = doctorSnapshot.docs[0].id;
 
-          // Query to fetch appointments where selectedDoctor matches the doctor's ID
+         
           const appointmentsQuery = query(collection(db, 'appointments'), where('selectedDoctor', '==', doctorId));
           const appointmentsSnapshot = await getDocs(appointmentsQuery);
           
@@ -36,7 +36,7 @@ const DoctorHome = ({ route }) => {
             appointmentsData.push({ id: doc.id, ...doc.data() });
           });
           
-          // Filter upcoming appointments based on current date and time
+          
           const currentDate = new Date();
           const upcomingAppointments = appointmentsData.filter(appointment => {
             const appointmentDate = appointment.appointmentDate.toDate();
@@ -58,6 +58,10 @@ const DoctorHome = ({ route }) => {
   const handleLogout = () => {
     navigation.navigate('Login');
   };
+  const handleCancel = () => {
+    navigation.navigate('Cancel');
+  }
+ 
 
   return (
     <ScrollView style={styles.container}>
@@ -65,6 +69,7 @@ const DoctorHome = ({ route }) => {
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
+      
       <View style={styles.dashboardSection}>
         <Text style={styles.sectionTitle}>Upcoming Appointments:</Text>
         {appointments.length > 0 ? (
@@ -77,6 +82,9 @@ const DoctorHome = ({ route }) => {
                   Patient: {item.patientName}{'\n'}
                   Date: {item.appointmentDate.toDate().toLocaleDateString()}{'\n'}
                   Time: {item.appointmentTime}
+                  <TouchableOpacity style={styles.CancelButton} onPress={handleCancel}>
+                  <Text style={styles.CancelButtonText}>Cancel</Text>
+                  </TouchableOpacity>
                 </Text>
               </View>
             )}
@@ -119,15 +127,34 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
+  
+  
   appointmentCard: {
     backgroundColor: '#fff',
     borderRadius: 8,
     padding: 15,
     marginBottom: 10,
   },
+
+  ManageButtontext: { // Make sure this matches your component's style reference
+    color: 'white', // This sets the text color to white
+    fontSize: 16,
+  },
   appointmentInfo: {
     fontSize: 16,
   },
+
+  CancelButton: {
+    backgroundColor: '#0954a5',
+    padding: 10,
+    borderRadius: 5,
+    marginLeft: 'auto',
+  },
+  CancelButtonText: {
+    color: 'white',
+    fontSize: 14,
+  },
+
   logoutButton: {
     backgroundColor: '#0954a5',
     padding: 6,

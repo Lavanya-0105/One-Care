@@ -3,6 +3,7 @@ import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 
+
 const InfoCard = ({ title, description,imageSource, onPress }) => (
   <TouchableOpacity style={styles.infoCard} onPress={onPress}>
     <Image source={imageSource} style={styles.infoCardImage} />
@@ -43,6 +44,21 @@ const PatientHome = ({ route }) => {
   const handleLogout = () => {
     navigation.navigate('Login');
   };
+  const  handleDiet = () => {
+    navigation.navigate('DietDisplay');
+  };
+
+  const PrescriptionUpload = () => {
+    navigation.navigate('PrescriptionUpload');
+  };
+
+  const ChildVaccine = () => {
+    navigation.navigate('ChildVaccine');
+  };
+  const CalorieCount = () => {
+    navigation.navigate('CalorieCount');
+  };
+  
 
   return (
     <View style={styles.container}>
@@ -65,13 +81,20 @@ const PatientHome = ({ route }) => {
           <Text style={styles.bannerSubtitle}>
             Find your Doctor and make an Appointment. On-demand healthcare services at your fingertips.
           </Text>
-
+          <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.bookAppointmentButton}
             onPress={() => navigation.navigate('AppointmentBooking', { email })}
           >
             <Text style={styles.buttonText}>Book Appointment</Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.bookAppointmentButton}
+            onPress={() => navigation.navigate('ManageAppointments', { email })}
+          >
+            <Text style={styles.buttonText}>Manage  my appointments</Text>
+          </TouchableOpacity>
+          </View>
         </View>
       </View>
 
@@ -118,6 +141,36 @@ const PatientHome = ({ route }) => {
             onPress={healthresources}
           />
         </View>
+        <View style={styles.infoCardsRow}>
+          <InfoCard
+          imageSource={require('../assets/features/dietbanner.jpeg')}
+            title="Diet Display"
+            description="Find the right  diet plans tailored to your specific medical condition. Whether you're managing diabetes, hypertension, or high cholesterol, find curated meal recommendations designed to support your health and well-being."
+            onPress={handleDiet}
+          />
+          <InfoCard
+          imageSource={require('../assets/features/prescriptionIcon.jpeg')}
+            title="Manage Prescriptions"
+            description="Easily upload and share your prescriptions with healthcare providers using our Prescription Management feature. Keep track of your medications and ensure timely refills. Take control of your health journey with convenience and efficiency."
+            onPress={PrescriptionUpload}
+          />
+          <InfoCard
+          imageSource={require('../assets/features/ChildVaccine.jpeg')}
+            title="Child Vaccination"
+            description="Stay up-to-date with your child's vaccination schedule and ensure their optimal health with our Child Vaccination feature. Access information on recommended vaccines, track vaccination history, and receive reminders for upcoming immunizations."
+            onPress={ChildVaccine}
+          />
+          
+        </View>
+        <View style={styles.infoCardsRow}>
+          <InfoCard
+          imageSource={require('../assets/features/CalorieCount.png')}
+            title="CalorieCounter"
+            description="Find the right  diet plans tailored to your specific medical condition. Whether you're managing diabetes, hypertension, or high cholesterol, find curated meal recommendations designed to support your health and well-being."
+            onPress={CalorieCount}
+          />
+        </View>
+        
       </View>
       <Footer />
     </View>
@@ -175,6 +228,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 10,
    
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    marginTop: 10, // Adjust margin as needed
   },
   bookAppointmentButton: {
     backgroundColor: '#0954a5',
