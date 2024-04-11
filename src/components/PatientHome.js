@@ -114,20 +114,22 @@ const PatientHome = ({ route }) => {
             description="Take a moment to prioritize your mental well-being with our Stress Management feature. Access a library of guided meditation sessions and relaxation techniques designed to promote mindfulness and reduce stress levels."
             onPress={MeditationSession}
           />
+            </View>
+          <View style={styles.infoCardsRow}>
           <InfoCard
            imageSource={require('../assets/features/medicationReminder2.jpeg')}
             title="Medication Reminder"
             description="Stay on top of your medication schedule with our Medication Reminder feature. Set up reminders for medication doses, refill dates, and doctor appointments to ensure you never miss an important healthcare task."
             onPress={MedicationReminder}
           />
-        </View>
-        <View style={styles.infoCardsRow}>
           <InfoCard
           imageSource={require('../assets/features/SearchDoctor.jpeg')}
             title="Search a Doctor"
             description="Find the right healthcare provider for your needs with our Search a Doctor feature. Browse through a curated list of doctors, apply filters based on specialty, location, and availability, and book appointments with ease."
             onPress={handleSearchDoctor}
           />
+          </View>
+          <View style={styles.infoCardsRow}>
           <InfoCard
           imageSource={require('../assets/features/LabTest.jpeg')}
             title="Lab Test Booking"
@@ -154,15 +156,14 @@ const PatientHome = ({ route }) => {
             description="Easily upload and share your prescriptions with healthcare providers using our Prescription Management feature. Keep track of your medications and ensure timely refills. Take control of your health journey with convenience and efficiency."
             onPress={PrescriptionUpload}
           />
+          </View>
+          <View style={styles.infoCardsRow}>
           <InfoCard
           imageSource={require('../assets/features/ChildVaccine.jpeg')}
             title="Child Vaccination"
             description="Stay up-to-date with your child's vaccination schedule and ensure their optimal health with our Child Vaccination feature. Access information on recommended vaccines, track vaccination history, and receive reminders for upcoming immunizations."
             onPress={ChildVaccine}
           />
-          
-        </View>
-        <View style={styles.infoCardsRow}>
           <InfoCard
           imageSource={require('../assets/features/CalorieCount.png')}
             title="CalorieCounter"
@@ -257,9 +258,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     flexWrap: 'wrap',
+    marginBottom: 20, // Added marginBottom for some spacing between rows
   },
+
   infoCard: {
-    width: '30%',
+    width: '48%', // Adjusted width to fit two cards in a row with some space in between
     marginBottom: 20,
     borderRadius: 15,
     backgroundColor: '#fff',
@@ -268,6 +271,7 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     elevation: 4, 
   },
+
   infoCardTitle: {
     color: 'blue',
     fontSize: 18,
