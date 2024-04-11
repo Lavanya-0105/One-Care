@@ -49,11 +49,11 @@ const PatientHome = ({ route }) => {
   };
 
   const PrescriptionUpload = () => {
-    navigation.navigate('PrescriptionUpload');
+    navigation.navigate('PrescriptionUpload', { email });
   };
 
   const ChildVaccine = () => {
-    navigation.navigate('ChildVaccine');
+    navigation.navigate('ChildVaccine', { email });
   };
   const CalorieCount = () => {
     navigation.navigate('CalorieCount');

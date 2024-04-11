@@ -1,36 +1,77 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { db } from '../firebase';
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, getDoc, doc, deleteDoc } from "firebase/firestore";
 
-const ManageAppointments = () => {
-  const navigation = useNavigation();
+const ManageAppointments = ({ navigation, route }) => {
+  const { email } = route.params;
   const [upcomingAppointments, setUpcomingAppointments] = useState([]);
+  const [pastAppointments, setPastAppointments] = useState([]);
+
+  const fetchAppointments = async () => {
+    const now = new Date();
+    const appointmentsRef = collection(db, 'appointments');
+  
+    // Query appointments for the user
+    const userAppointmentsQuery = query(appointmentsRef, where('userEmail', '==', email));
+  
+    const userAppointmentsSnapshot = await getDocs(userAppointmentsQuery);
+    const userAppointmentsData = [];
+  
+    for (const doc of userAppointmentsSnapshot.docs) {
+      const firebaseData = doc.data();
+      const date = firebaseData.appointmentDate.toDate();
+      const doctorName = await fetchDoctorName(firebaseData.selectedDoctor);
+      userAppointmentsData.push({ ...firebaseData, id: doc.id, appointmentDate: date, doctorName });
+    }
+  
+    // Filter appointments into upcoming and past based on the current date
+    const upcomingAppointments = [];
+    const pastAppointments = [];
+  
+    userAppointmentsData.forEach(appointment => {
+      if (appointment.appointmentDate >= now) {
+        upcomingAppointments.push(appointment);
+      } else {
+        pastAppointments.push(appointment);
+      }
+    });
+  
+    setUpcomingAppointments(upcomingAppointments);
+    setPastAppointments(pastAppointments);
+  };
+  
 
   useEffect(() => {
-    const now = new Date();
-    const fetchUpcomingAppointments = async () => {
-      const q = query(collection(db, 'appointments'), where('appointmentDate', '>=', now));
-      const querySnapshot = await getDocs(q);
-      
-      const appointments = querySnapshot.docs.map(doc => {
-        const firebaseData = doc.data();
-        const date = firebaseData.appointmentDate.toDate(); 
-        return { ...firebaseData, id: doc.id, appointmentDate: date };
-      });
-
-      setUpcomingAppointments(appointments);
-    };
-
-    fetchUpcomingAppointments();
+    fetchAppointments();
   }, []);
 
-  const renderUpcomingAppointment = ({ item }) => (
+  const fetchDoctorName = async (doctorId) => {
+    const doctorDoc = await getDoc(doc(db, 'doctors', doctorId));
+    if (doctorDoc.exists()) {
+      return doctorDoc.data().name; // Assuming 'name' is the field containing the doctor's name
+    } else {
+      return null;
+    }
+  };
+
+  const handleCancelAppointment = async (appointmentId) => {
+    try {
+      await deleteDoc(doc(db, 'appointments', appointmentId));
+      // Re-fetch appointments after cancellation
+      fetchAppointments();
+    } catch (error) {
+      console.error("Error cancelling appointment: ", error);
+      Alert.alert("Error", "Failed to cancel appointment. Please try again later.");
+    }
+  };
+
+  const renderAppointment = ({ item }) => (
     <View style={styles.appointmentCard}>
       <View style={styles.appointmentDetailRow}>
         <Text style={styles.appointmentDetailLabel}>Doctor:</Text>
-        <Text style={styles.appointmentDetail}>{item.selectedDoctor}</Text>
+        <Text style={styles.appointmentDetail}>{item.doctorName}</Text>
       </View>
       <View style={styles.appointmentDetailRow}>
         <Text style={styles.appointmentDetailLabel}>Date:</Text>
@@ -44,7 +85,7 @@ const ManageAppointments = () => {
         <Text style={styles.appointmentDetailLabel}>Mode:</Text>
         <Text style={styles.appointmentDetail}>{item.preferredMode}</Text>
       </View>
-      <TouchableOpacity style={styles.cancelButton} onPress={() => {/* handle cancellation */}}>
+      <TouchableOpacity style={styles.cancelButton} onPress={() => handleCancelAppointment(item.id)}>
         <Text style={styles.cancelButtonText}>Cancel</Text>
       </TouchableOpacity>
     </View>
@@ -60,7 +101,15 @@ const ManageAppointments = () => {
 
       <View style={styles.section}>
         <Text style={styles.subtitle}>Past Appointments</Text>
-        <Text style={styles.notAvailable}>Not Available</Text>
+        {pastAppointments.length > 0 ? (
+          <FlatList
+            data={pastAppointments}
+            renderItem={renderAppointment}
+            keyExtractor={item => item.id}
+          />
+        ) : (
+          <Text style={styles.noAppointmentsText}>No Past Appointments</Text>
+        )}
       </View>
 
       <View style={styles.section}>
@@ -68,7 +117,7 @@ const ManageAppointments = () => {
         {upcomingAppointments.length > 0 ? (
           <FlatList
             data={upcomingAppointments}
-            renderItem={renderUpcomingAppointment}
+            renderItem={renderAppointment}
             keyExtractor={item => item.id}
           />
         ) : (
@@ -105,14 +154,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '600',
     marginBottom: 10,
-  },
-  notAvailable: {
-    fontSize: 16,
-    color: 'grey',
-    textAlign: 'center',
-    padding: 20,
-    backgroundColor: '#f7f7f7',
-    borderRadius: 10,
   },
   appointmentCard: {
     backgroundColor: '#fff',
@@ -157,6 +198,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
-
 
 export default ManageAppointments;

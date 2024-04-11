@@ -1,67 +1,91 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, ScrollView } from 'react-native';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { db } from '../firebase'; 
+import { collection, addDoc, query, where, getDocs, deleteDoc, doc } from "firebase/firestore";
 
+const ChildVaccine = ({ route, navigation }) => {
+  const { email } = route.params;
+  const [dummyVaccines, setDummyVaccines] = useState([
+    {
+      name: "Vaccine A",
+      whenToGive: "2024-04-01",
+      dose: "1",
+      Route: "Oral",
+      site: "Left thigh",
+      schedule: false,
+    },
+    {
+      name: "Vaccine B",
+      whenToGive: "2024-04-15",
+      dose: "2",
+      Route: "Intramuscular",
+      site: "Right arm",
+      schedule: false,
+    },
+    {
+      name: "Vaccine C",
+      whenToGive: "2024-05-01",
+      dose: "3",
+      Route: "Subcutaneous",
+      site: "Left shoulder",
+      schedule: false,
+    },
+  ]);
 
-const VaccineList = () => {
-
-  const vaccines = [
-    { name: 'BCG', description: 'Bacille Calmette-Guérin (BCG) vaccine protects against tuberculosis (TB).' },
-    { name: 'Hepatitis B', description: 'Hepatitis B vaccine protects against hepatitis B virus infection.' },
-  
-  ];
-
-  return (
-    <View style={styles.vaccineListContainer}>
-      <Text style={styles.vaccineListHeader}>Vaccine List and Details</Text>
-      {vaccines.map((vaccine, index) => (
-        <View key={index} style={styles.vaccineListItem}>
-          <Text style={styles.vaccineName}>{vaccine.name}</Text>
-          <Text>{vaccine.description}</Text>
-        </View>
-      ))}
-    </View>
-  );
-};
-
-const ChildVaccine = () => {
-  const [children, setChildren] = useState([]);
-  const [newChildName, setNewChildName] = useState('');
-  const [newChildAge, setNewChildAge] = useState('');
+  const [selectedVaccines, setSelectedVaccines] = useState(Array(dummyVaccines.length).fill(false));
+  const [isAddVaccineFormOpen, setIsAddVaccineFormOpen] = useState(false);
+  const [isVaccineScheduled, setIsVaccineScheduled] = useState(false);
+  const [parentName, setParentName] = useState(''); 
+  const [newChildName, setNewChildName] = useState(''); 
+  const [newChildAge, setNewChildAge] = useState(''); 
   const [newChildGender, setNewChildGender] = useState('');
   const [newChildPhoto, setNewChildPhoto] = useState(null);
-  const [parentName, setParentName] = useState('');
-  const [parentPhoto, setParentPhoto] = useState('');
-  const [isAddChildFormOpen, setIsAddChildFormOpen] = useState(false);
 
-  const toggleAddChildForm = () => {
-    setIsAddChildFormOpen(!isAddChildFormOpen);
+  const handleSchedule = (index) => {
+    const updatedSelectedVaccines = [...selectedVaccines];
+    updatedSelectedVaccines[index] = true;
+    setSelectedVaccines(updatedSelectedVaccines);
+    setIsVaccineScheduled(true);
   };
 
-  const addChild = () => {
-    if (newChildName.trim() !== '' && newChildAge.trim() !== '' && newChildGender.trim() !== '' && newChildPhoto) {
-      const child = {
-        id: Math.random().toString(),
-        name: newChildName.trim(),
-        age: newChildAge.trim(),
-        gender: newChildGender.trim(),
-        photo: newChildPhoto,
-        parent: {
-          name: parentName,
-          photo: parentPhoto,
-        },
-        vaccinations: [],
-      };
-      setChildren([...children, child]);
-      setNewChildName('');
-      setNewChildAge('');
-      setNewChildGender('');
-      setNewChildPhoto(null);
-      setParentName('');
-      setParentPhoto('');
-      setIsAddChildFormOpen(false);
-      Alert.alert('Success', 'Child added successfully!');
+  const handleAddVaccine = () => {
+    if (isVaccineScheduled) {
+      setIsAddVaccineFormOpen(true);
     } else {
-      Alert.alert('Error', 'Please fill in all the details including the child photo.');
+      alert('Error', 'Please select and schedule a vaccine before scheduling a new one.');
+    }
+  };
+
+  const handleBack = () => {
+    navigation.navigate("PatientHome", { email: email });
+  };
+
+  const addChild = async () => {
+    try {
+      const childData = {
+        parentName: parentName,
+        childName: newChildName,
+        childAge: newChildAge,
+        childGender: newChildGender,
+        childPhoto: newChildPhoto,
+        email: email
+      };
+      const docRef = await addDoc(collection(db, "children"), childData);
+      console.log("Child added with ID: ", docRef.id);
+      alert(
+        "Success",
+        "Child details added successfully. Reminder is set for vaccination.",
+        [
+          {
+            text: "OK",
+            onPress: () => navigation.navigate("PatientHome", { email: email })
+          }
+        ]
+      );
+    } catch (error) {
+      console.error("Error adding child: ", error);
     }
   };
 
@@ -75,11 +99,58 @@ const ChildVaccine = () => {
   };
 
   return (
-    <View style={styles.container}>
-  
-      
-      {isAddChildFormOpen && (
+    <ScrollView>
+      <View>
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <FontAwesomeIcon
+            icon={faArrowLeft}
+            size="lg"
+            style={styles.backIcon}
+          />
+          <Text style={styles.backButtonText}>Back</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.tableContainer}>
+        <Text style={styles.heading}>Vaccination Information</Text>
+
+        <View style={styles.table}>
+          <View style={styles.tableRow}>
+            <Text style={styles.tableHeader}>Name</Text>
+            <Text style={styles.tableHeader}>When to Give</Text>
+            <Text style={styles.tableHeader}>Dose</Text>
+            <Text style={styles.tableHeader}>Route</Text>
+            <Text style={styles.tableHeader}>Site</Text>
+            <Text style={styles.tableHeader}>Schedule</Text>
+          </View>
+          {dummyVaccines.map((vaccine, index) => {
+            return (
+              <View style={styles.tableRow} key={index}>
+                <Text style={styles.tableData}>{vaccine.name}</Text>
+                <Text style={styles.tableData}>{vaccine.whenToGive}</Text>
+                <Text style={styles.tableData}>{vaccine.dose}</Text>
+                <Text style={styles.tableData}>{vaccine.Route}</Text>
+                <Text style={styles.tableData}>{vaccine.site}</Text>
+                <Text style={styles.tableData}>
+                  <TouchableOpacity onPress={() => handleSchedule(index)}>
+                    <Text
+                      style={
+                        selectedVaccines[index]
+                          ? styles.tableStatusBlue
+                          : styles.tableStatus
+                      }>
+                      {selectedVaccines[index] ? "Scheduled" : "Schedule"}
+                    </Text>
+                  </TouchableOpacity>
+                </Text>
+              </View>
+            );
+          })}
+        </View>
+      </View>
+
+      {isAddVaccineFormOpen && (
         <View style={styles.formContainer}>
+          <Text style={styles.heading}>Add A Children</Text>
           <TextInput
             placeholder="Enter Parent's Name"
             style={styles.input}
@@ -110,49 +181,77 @@ const ChildVaccine = () => {
           </TouchableOpacity>
         </View>
       )}
-
-      {!isAddChildFormOpen && (
-        <TouchableOpacity onPress={toggleAddChildForm} style={styles.addButton}>
-          <Text style={styles.addButtonLabel}>Add New Child</Text>
+      {!isAddVaccineFormOpen && (
+        <TouchableOpacity onPress={handleAddVaccine} style={styles.addButton}>
+          <Text style={styles.addButtonLabel}>Add child</Text>
         </TouchableOpacity>
       )}
-
-      {children.length > 0 && (
-        <View style={styles.childrenContainer}>
-          {children.map(child => (
-            <View key={child.id} style={styles.childCard}>
-              <Image source={{ uri: child.photo }} style={styles.childPhoto} />
-              <Text style={styles.childInfo}>Name: {child.name}</Text>
-              <Text style={styles.childInfo}>Age: {child.age}</Text>
-              <Text style={styles.childInfo}>Gender: {child.gender}</Text>
-              <Text style={styles.childInfo}>Parent: {child.parent.name}</Text>
-              <Text style={styles.childInfo}>Vaccinations:</Text>
-              <View style={styles.vaccinationTable}>
-                {/* Display child's vaccination details */}
-                {child.vaccinations.map((vaccine, index) => (
-                  <Text key={index}>{vaccine}</Text>
-                ))}
-              </View>
-            </View>
-          ))}
-        </View>
-      )}
-
-      {/* Display vaccine list */}
-      <VaccineList />
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 5,
+    color: "#0954a5",
+    paddingHorizontal: 10,
+    top: 6,
+    left: 10,
+  },
+  backButtonText: {
+    fontSize: 18,
+    marginHorizontal: 10,
+    fontWeight: "bold",
+    color: "#0954a5",
+  },
+  heading: {
+    fontSize: 16,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 10,
+  },
+  tableRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 10,
+    paddingVertical: 8,
+  },
+  tableHeader: {
     flex: 1,
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    marginTop: 10,
+    textAlign: "center",
+    fontWeight: "bold",
+  },
+  tableData: {
+    flex: 1,
+    textAlign: "center",
+  },
+  tableStatus: {
+    backgroundColor: "#33cc33",
+    padding: 5,
+    height: 30,
+    color: "#fff",
+    paddingHorizontal: 10,
+    borderRadius: 5,
+  },
+  tableStatusBlue: {
+    backgroundColor: "#0954a5",
+    padding: 5,
+    color: "#fff",
+    paddingHorizontal: 20,
+    width: "auto",
+    height: 30,
+    borderRadius: 5,
   },
   formContainer: {
     marginTop: 20,
-    width: '80%',
+    paddingHorizontal: 20,
+    backgroundColor: "#fff",
+    margin: 8,
+    borderRadius: 8,
+    padding: 10,
   },
   input: {
     borderWidth: 1,
@@ -171,53 +270,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     textAlign: 'center',
-  },
-  childrenContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-    marginTop: 20,
-  },
-  childCard: {
-    width: 150,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 10,
-    padding: 10,
-    margin: 10,
-    alignItems: 'center',
-  },
-  childPhoto: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 10,
-  },
-  childInfo: {
-    fontSize: 14,
-    marginBottom: 5,
-  },
-  vaccinationTable: {
-    marginTop: 10,
-  },
-  vaccineListContainer: {
-    marginTop: 20,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    width: '80%',
-  },
-  vaccineListHeader: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  vaccineListItem: {
-    marginBottom: 10,
-  },
-  vaccineName: {
-    fontWeight: 'bold',
   },
 });
 
