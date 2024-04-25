@@ -1,33 +1,28 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, TextInput,  ImageBackground, Image, TouchableOpacity, Text } from 'react-native';
-
 import { useNavigation } from '@react-navigation/native';
 import { auth} from '../firebase';
-import { sendPasswordResetEmail } from 'firebase/auth'; 
+import { sendPasswordResetEmail } from 'firebase/auth'; //Importing send password reset email module from firebase.
+import Footer from './Footer'; 
 
-const Footer = () => (
-  <View style={styles.footer}>
-    <Text style={styles.footerText}>© 2024 OneCare. All Rights Reserved.</Text>
-  </View>
-);
 const ForgetPassword = () => {
   const [email, setEmail] = useState('');
   const navigation = useNavigation(); 
 
+//Setting asynchronous function.
   const handleSubmit = async () => {
-    try {
-      await sendPasswordResetEmail(auth, email);
-      alert('Password Reset Email Sent', 'Please check your email for instructions to reset your password.');
-    } catch (error) {
-      const errorMessage = error.message;
-      alert('Error', errorMessage);
+    try {   //It is used for error handling.
+      await sendPasswordResetEmail(auth, email); // It is used for sending reset password emails
+      alert('Email has been sent for reseting password, please check email.');
+    } catch (error) { //It is used to catch any error that occur while running this function.
+      const errorMessage = error.message; //This is used retrive error which is caught.
+      alert('Error', errorMessage); //Showing that error message.
     }
   };
 
   const backToLogin = () => {
     navigation.navigate('Login'); 
   };
-
 
   return (
     <ImageBackground
@@ -61,12 +56,11 @@ const ForgetPassword = () => {
        <Text style={styles.link} onPress={backToLogin}>
                 Login
               </Text>
-      </View>
-       
-          </View>
         </View>
+        </View>
+        </View>
+        <Footer />
       </View>
-      <Footer />
     </ImageBackground>
   );
 };
@@ -105,10 +99,9 @@ const styles = StyleSheet.create({
   logo: {
     width: 150,
     height: 150,
-    aspectRatio: 4 / 3,
+    aspectRatio: 4 / 3, //It is used to define aspect ratio that is width and height.
   },
   text: {
-    // padding: 10,
     paddingVertical: 10,
     width: '80%',
     textAlign: 'center'
@@ -159,18 +152,6 @@ const styles = StyleSheet.create({
     marginStart: 5,
     fontWeight: '700',
     borderBottomWidth: 1,
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    backgroundColor: '#f8f8f8',
-    padding: 10,
-    alignItems: 'center',
-  },
-  footerText: {
-    color: '#333',
-    fontSize: 12,
   },
 });
 

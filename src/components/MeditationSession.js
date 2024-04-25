@@ -1,27 +1,29 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, StyleSheet, Linking } from 'react-native';
+import Footer from './Footer';
 
 const MeditationSession = ({ navigation, route }) => {
   const { email } = route.params;
 
+//Function for redirecting to youtube.
   const redirectToYouTubePlaylist = () => {
-    // Replace 'YOUR_PLAYLIST_ID' with the actual ID of your YouTube playlist
+    //Indicating Id of playlist.
     const playlistId = 'PLCr82oDz4rx8Z3nunsF7jb7nFWQGtOchA';
-
-   
+    //Making URL of youtube with above ID.
     const youtubePlaylistUrl = `https://www.youtube.com/playlist?list=${playlistId}`;
-
-   
+    //Open it with the help linking from react moduel.
     Linking.openURL(youtubePlaylistUrl);
   };
 
   const handleBack = () => {
-
     navigation.navigate('PatientHome', { email: email });
   };
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity  onPress={handleBack}>
+        <Text style={styles.backButton}>Back</Text>
+      </TouchableOpacity>
       <Text style={styles.title}>Meditation Session</Text>
       <Text style={styles.description}>
         Immerse yourself in tranquility with our pre-recorded meditation sessions on YouTube.
@@ -33,9 +35,7 @@ const MeditationSession = ({ navigation, route }) => {
       <TouchableOpacity style={styles.button} onPress={redirectToYouTubePlaylist}>
         <Text style={styles.buttonText}>Open Playlist</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-        <Text style={styles.backButtonText}>Back</Text>
-      </TouchableOpacity>
+      <Footer />
     </View>
   );
 };
@@ -65,25 +65,19 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   button: {
+backgroundColor: '#0954a5',
     padding: 10,
-    backgroundColor: '#3498db',
     borderRadius: 5,
-    marginBottom: 10,
+    alignItems: 'center',
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontWeight: 'bold',
   },
   backButton: {
-    padding: 10,
-    backgroundColor: '#ccc',
-    borderRadius: 5,
-  },
-  backButtonText: {
-    color: '#333',
-    fontSize: 16,
-    fontWeight: 'bold',
+    color: '#0954a5',
+    fontSize: 18,
+    right:'620px',
   },
 });
 

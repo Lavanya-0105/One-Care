@@ -1,48 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, FlatList, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { db } from '../firebase';
 import { collection, query, where, getDocs, getDoc, doc, deleteDoc } from "firebase/firestore";
+import Footer from './Footer';
 
 const ManageAppointments = ({ navigation, route }) => {
   const { email } = route.params;
   const [upcomingAppointments, setUpcomingAppointments] = useState([]);
   const [pastAppointments, setPastAppointments] = useState([]);
-
   const fetchAppointments = async () => {
     const now = new Date();
     const appointmentsRef = collection(db, 'appointments');
-  
-    // Query appointments for the user
     const userAppointmentsQuery = query(appointmentsRef, where('userEmail', '==', email));
-  
     const userAppointmentsSnapshot = await getDocs(userAppointmentsQuery);
     const userAppointmentsData = [];
-  
     for (const doc of userAppointmentsSnapshot.docs) {
       const firebaseData = doc.data();
       const date = firebaseData.appointmentDate.toDate();
       const doctorName = await fetchDoctorName(firebaseData.selectedDoctor);
       userAppointmentsData.push({ ...firebaseData, id: doc.id, appointmentDate: date, doctorName });
     }
-  
-    // Filter appointments into upcoming and past based on the current date
+    //Setting empty array.
     const upcomingAppointments = [];
     const pastAppointments = [];
-  
+    //Running the above function so mant times.
     userAppointmentsData.forEach(appointment => {
+      //If appointment date is now or greater than that appointment goes to upcoming if not past and this process continues untill all appointments are done for that particular user.
       if (appointment.appointmentDate >= now) {
         upcomingAppointments.push(appointment);
       } else {
         pastAppointments.push(appointment);
       }
     });
-  
     setUpcomingAppointments(upcomingAppointments);
     setPastAppointments(pastAppointments);
   };
-  
-
   useEffect(() => {
     fetchAppointments();
   }, []);
@@ -50,7 +42,7 @@ const ManageAppointments = ({ navigation, route }) => {
   const fetchDoctorName = async (doctorId) => {
     const doctorDoc = await getDoc(doc(db, 'doctors', doctorId));
     if (doctorDoc.exists()) {
-      return doctorDoc.data().name; // Assuming 'name' is the field containing the doctor's name
+      return doctorDoc.data().name; 
     } else {
       return null;
     }
@@ -59,11 +51,10 @@ const ManageAppointments = ({ navigation, route }) => {
   const handleCancelAppointment = async (appointmentId) => {
     try {
       await deleteDoc(doc(db, 'appointments', appointmentId));
-      // Re-fetch appointments after cancellation
       fetchAppointments();
     } catch (error) {
-      console.error("Error cancelling appointment: ", error);
-      Alert.alert("Error", "Failed to cancel appointment. Please try again later.");
+      console.error("Error occured during cancelling appointment: ", error);
+      alert("Unable to cancel appointment.");
     }
   };
 
@@ -90,11 +81,10 @@ const ManageAppointments = ({ navigation, route }) => {
       </TouchableOpacity>
     </View>
   );
-
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButtonContainer}>
-        <Text style={styles.backButtonText}>Back</Text>
+      <TouchableOpacity onPress={() => navigation.goBack()}>
+        <Text style={styles.backButtonContainer}>Back</Text>
       </TouchableOpacity>
 
       <Text style={styles.title}>Manage Appointments</Text>
@@ -124,6 +114,7 @@ const ManageAppointments = ({ navigation, route }) => {
           <Text style={styles.noAppointmentsText}>No Upcoming Appointments</Text>
         )}
       </View>
+      <Footer />
     </View>
   );
 };
@@ -135,11 +126,8 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   backButtonContainer: {
-    marginBottom: 20,
-  },
-  backButtonText: {
-    fontSize: 16,
     color: '#0954a5',
+    fontSize: 18,
   },
   title: {
     fontSize: 22,

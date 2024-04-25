@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, ScrollView } from 'react-native';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { db } from '../firebase'; 
-import { collection, addDoc, query, where, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { collection, addDoc } from "firebase/firestore";
+import Footer from './Footer';
 
 const ChildVaccine = ({ route, navigation }) => {
   const { email } = route.params;
-  const [dummyVaccines, setDummyVaccines] = useState([
+  const [dummyVaccines] = useState([
     {
       name: "Vaccine A",
-      whenToGive: "2024-04-01",
+      whenToGive: "One Month",
       dose: "1",
       Route: "Oral",
       site: "Left thigh",
@@ -18,7 +17,7 @@ const ChildVaccine = ({ route, navigation }) => {
     },
     {
       name: "Vaccine B",
-      whenToGive: "2024-04-15",
+      whenToGive: "Six Months",
       dose: "2",
       Route: "Intramuscular",
       site: "Right arm",
@@ -26,7 +25,7 @@ const ChildVaccine = ({ route, navigation }) => {
     },
     {
       name: "Vaccine C",
-      whenToGive: "2024-05-01",
+      whenToGive: "One Year",
       dose: "3",
       Route: "Subcutaneous",
       site: "Left shoulder",
@@ -34,85 +33,68 @@ const ChildVaccine = ({ route, navigation }) => {
     },
   ]);
 
-  const [selectedVaccines, setSelectedVaccines] = useState(Array(dummyVaccines.length).fill(false));
   const [isAddVaccineFormOpen, setIsAddVaccineFormOpen] = useState(false);
-  const [isVaccineScheduled, setIsVaccineScheduled] = useState(false);
-  const [parentName, setParentName] = useState(''); 
-  const [newChildName, setNewChildName] = useState(''); 
-  const [newChildAge, setNewChildAge] = useState(''); 
+  const [selectedVaccineIndex, setSelectedVaccineIndex] = useState(null);
+  const [parentName, setParentName] = useState('');
+  const [newChildName, setNewChildName] = useState('');
+  const [newChildAge, setNewChildAge] = useState('');
   const [newChildGender, setNewChildGender] = useState('');
   const [newChildPhoto, setNewChildPhoto] = useState(null);
 
+
+
   const handleSchedule = (index) => {
-    const updatedSelectedVaccines = [...selectedVaccines];
-    updatedSelectedVaccines[index] = true;
-    setSelectedVaccines(updatedSelectedVaccines);
-    setIsVaccineScheduled(true);
+    setSelectedVaccineIndex(index);
+    setParentName(''); 
+    setIsAddVaccineFormOpen(true);
   };
 
-  const handleAddVaccine = () => {
-    if (isVaccineScheduled) {
-      setIsAddVaccineFormOpen(true);
-    } else {
-      alert('Error', 'Please select and schedule a vaccine before scheduling a new one.');
-    }
-  };
-
-  const handleBack = () => {
-    navigation.navigate("PatientHome", { email: email });
-  };
-
-  const addChild = async () => {
+  const add = async () => {
     try {
+      const selectedVaccine = dummyVaccines[selectedVaccineIndex];
       const childData = {
         parentName: parentName,
         childName: newChildName,
         childAge: newChildAge,
         childGender: newChildGender,
         childPhoto: newChildPhoto,
-        email: email
+        email: email,
+        vaccine: selectedVaccine 
       };
       const docRef = await addDoc(collection(db, "children"), childData);
       console.log("Child added with ID: ", docRef.id);
       alert(
-        "Success",
-        "Child details added successfully. Reminder is set for vaccination.",
-        [
-          {
-            text: "OK",
-            onPress: () => navigation.navigate("PatientHome", { email: email })
-          }
-        ]
+        `Vaccination is successfully added for ${newChildName} and reminder also set for vaccine: ${selectedVaccine.name}`
       );
+      setParentName('');
+      setNewChildName('');
+      setNewChildAge('');
+      setNewChildGender('');
+      setNewChildPhoto(null);
+      setIsAddVaccineFormOpen(false); //This is used to hide form until user option is not performed.
     } catch (error) {
       console.error("Error adding child: ", error);
     }
   };
 
   const handlePhotoChange = (e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onloadend = () => {
+    const file = e.target.files[0]; // Use for getting the file.
+    const reader = new FileReader(); // Creating filereader object.
+    reader.onloadend = () => { //After reading converting it into string base64.
       setNewChildPhoto(reader.result);
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(file); //Reading URL of file.
   };
 
   return (
     <ScrollView>
       <View>
-        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <FontAwesomeIcon
-            icon={faArrowLeft}
-            size="lg"
-            style={styles.backIcon}
-          />
-          <Text style={styles.backButtonText}>Back</Text>
+        <TouchableOpacity onPress={() => navigation.navigate("PatientHome", { email: email })}>
+          <Text style={styles.backButton}>Back</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.tableContainer}>
         <Text style={styles.heading}>Vaccination Information</Text>
-
         <View style={styles.table}>
           <View style={styles.tableRow}>
             <Text style={styles.tableHeader}>Name</Text>
@@ -132,14 +114,7 @@ const ChildVaccine = ({ route, navigation }) => {
                 <Text style={styles.tableData}>{vaccine.site}</Text>
                 <Text style={styles.tableData}>
                   <TouchableOpacity onPress={() => handleSchedule(index)}>
-                    <Text
-                      style={
-                        selectedVaccines[index]
-                          ? styles.tableStatusBlue
-                          : styles.tableStatus
-                      }>
-                      {selectedVaccines[index] ? "Scheduled" : "Schedule"}
-                    </Text>
+                    <Text style={styles.tableStatus}>Schedule</Text>
                   </TouchableOpacity>
                 </Text>
               </View>
@@ -147,10 +122,9 @@ const ChildVaccine = ({ route, navigation }) => {
           })}
         </View>
       </View>
-
       {isAddVaccineFormOpen && (
         <View style={styles.formContainer}>
-          <Text style={styles.heading}>Add A Children</Text>
+          <Text style={styles.heading}>Add A Child</Text>
           <TextInput
             placeholder="Enter Parent's Name"
             style={styles.input}
@@ -176,35 +150,21 @@ const ChildVaccine = ({ route, navigation }) => {
             onChangeText={text => setNewChildGender(text)}
           />
           <input type="file" accept="image/*" onChange={handlePhotoChange} />
-          <TouchableOpacity onPress={addChild} style={styles.addButton}>
-            <Text style={styles.addButtonLabel}>Add Child</Text>
+          <TouchableOpacity onPress={add} style={styles.addButton}>
+            <Text style={styles.addButtonLabel}>Add</Text>
           </TouchableOpacity>
         </View>
       )}
-      {!isAddVaccineFormOpen && (
-        <TouchableOpacity onPress={handleAddVaccine} style={styles.addButton}>
-          <Text style={styles.addButtonLabel}>Add child</Text>
-        </TouchableOpacity>
-      )}
+      <Footer />
     </ScrollView>
   );
 };
 
+
 const styles = StyleSheet.create({
   backButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 5,
-    color: "#0954a5",
-    paddingHorizontal: 10,
-    top: 6,
-    left: 10,
-  },
-  backButtonText: {
     fontSize: 18,
-    marginHorizontal: 10,
-    fontWeight: "bold",
-    color: "#0954a5",
+    color: '#0954a5',
   },
   heading: {
     fontSize: 16,

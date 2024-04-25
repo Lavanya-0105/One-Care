@@ -11,6 +11,7 @@ const SearchDoctor = () => {
   const [location, setLocation] = useState('');
   const [searchResults, setSearchResults] = useState([]);
 
+  //The below consists of doctors and their details to select.
   const handleSearch = () => {
     const results = [
       { name: 'Dr. John Doe', specialty: 'Cardiologist', location: 'New York', email: 'john.doe@example.com' ,photo: require('../assets/doctors/doctor1.png')},
@@ -35,22 +36,23 @@ const SearchDoctor = () => {
       { name: 'Dr. Elizabeth Nguyen', specialty: 'Geriatrician', location: 'California', email: 'elizabeth.nguyen@example.com',photo: require('../assets/doctors/doctor20.png') },
       { name: 'Dr. Ryan Perez', specialty: 'Plastic Surgeon', location: 'California', email: 'ryan.perez@example.com',photo: require('../assets/doctors/doctor21.png') }
     ];
-
+    //Used for filtering results.
     const filteredResults = results.filter((doctor) =>
+    //Below lines are used for finding when it is a lowercase.
       doctor.specialty.toLowerCase().includes(specialty.toLowerCase()) &&
       doctor.location.toLowerCase().includes(location.toLowerCase())
     );
-
     setSearchResults(filteredResults);
+    //It is used to set result for search variable results.
   };
 
 
   
   const email = (email) => {
-    const subject = 'Schedule a Call';
-    const body = `Hello Dr. ${email},\n\nI would like to schedule a call with you. Please let me know your availability.\n\nBest regards,`;
-    const mailToLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    Linking.openURL(mailToLink);
+    const subject = 'Schedule a Call'; //Defining subject.
+    const body = `Hello Dr. ${email},\n\nI would like to schedule a call with you. Please let me know your availability.\n\nBest regards,`; //Constructing body of the mail.
+    const mailToLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`; // Constructing all for safe use.
+    Linking.openURL(mailToLink); //It is used to open default mail of user.
   };
 
   return (

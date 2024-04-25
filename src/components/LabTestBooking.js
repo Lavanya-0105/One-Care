@@ -9,7 +9,6 @@ import emailjs from 'emailjs-com';
 const LabTestBooking = ({ route }) => {
   const navigation = useNavigation();
   const { email } = route.params;
-
   const labTestplans = [
     { 
       id: 1, 
@@ -73,16 +72,23 @@ const LabTestBooking = ({ route }) => {
   const [totalPrice, setTotalPrice] = useState(0);
 
   const handlePlanSelect = (planId) => {
+    //Finding the selected plan from all plans.
     const selectedPlanIndex = selectedPlans.findIndex((plan) => plan.id === planId);
+    //Checking if plan existed in array or not.
     const planExists = selectedPlanIndex !== -1;
+    //After that add plan with the help of ID.
     const planToAdd = labTestplans.find((plan) => plan.id === planId);
-
+    // If plan does not exists in selecetd plans.
     if (!planExists) {
+      //Adding that slecetd plan.
       setSelectedPlans([...selectedPlans, planToAdd]);
+      //Getting that plan price and updating the total price with that new price.
       setTotalPrice(totalPrice + planToAdd.price);
     } else {
+      //If the plan has already updated or already existed then remove it slecetd plan from array list.
       const updatedPlans = selectedPlans.filter((plan) => plan.id !== planId);
       setSelectedPlans(updatedPlans);
+      //Decrease the price of that plan with total amount and update it.
       setTotalPrice(totalPrice - planToAdd.price);
     }
   };
@@ -95,31 +101,25 @@ const LabTestBooking = ({ route }) => {
         totalPrice: totalPrice,
         createdAt: Timestamp.fromDate(new Date()),
       };
-
       const docRef = await addDoc(collection(db, 'labTestAppointments'), appointmentData);
-
       console.log('Booking Confirmed! Document ID:', docRef.id);
-      alert('Booking Confirmed!');
-
+      alert('Booking for labtest is done and details sent to mail.');
       sendEmail(appointmentData);
-
       navigation.navigate('PatientHome', { email });
     } catch (error) {
       console.error('Error booking appointment:', error);
-      alert('Error occurred while booking appointment. Please try again later.');
+      alert('Unable to book appointment.');
     }
   };
 
   const sendEmail = (appointmentData) => {
     const { labTestPlans, totalPrice } = appointmentData;
     const testNames = labTestPlans.map((plan) => plan.name).join(', ');
-
     const templateParams = {
       testNames: testNames,
       totalPrice: totalPrice.toFixed(2),
       email: email, 
     };
-
     emailjs.send('service_i0f9ait', 'template_54x0y4e', templateParams, 'JuIkNzbfGilrBdDNs')
       .then((response) => {
         console.log('Email sent:', response);
@@ -137,7 +137,6 @@ const LabTestBooking = ({ route }) => {
       <Image source={require('../assets/LabTest.jpeg')} style={styles.banner} />
       <Text style={styles.heading}>Welcome to Lab Test Booking</Text>
       <Text style={styles.subHeading}>Choose from a variety of lab test packages below:</Text>
-
       <View style={styles.packagesContainer}>
         {labTestplans.map((labTest) => (
           <TouchableOpacity key={labTest.id} onPress={() => handlePlanSelect(labTest.id)} style={styles.packageItem}>
@@ -149,9 +148,7 @@ const LabTestBooking = ({ route }) => {
           </TouchableOpacity>
         ))}
       </View>
-
       <Text style={styles.totalPrice}>Total Price: ${totalPrice.toFixed(2)}</Text>
-
       <TouchableOpacity style={styles.button} onPress={handleBookingAppointment}>
         <Text style={styles.buttonText}>Book Appointment</Text>
       </TouchableOpacity>
@@ -245,11 +242,11 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontSize: 14,
-    fontWeight: 'bold',
   },
   backButton: {
-    fontSize: 18,
     color: '#0954a5',
+    fontSize: 18,
+    right:'620px',
   },
 });
 

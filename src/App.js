@@ -1,6 +1,7 @@
-
+// Importing modules from react for this app.
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+//Importing all pages which used in app.
 import Login from './Login';
 import PatientHome from './components/PatientHome';
 import AppointmentBooking from "./components/AppointmentBooking";
@@ -17,20 +18,22 @@ import MeditationSession from './components/MeditationSession';
 import DietDisplay from './components/DietDisplay';
 import PrescriptionUpload from './components/PrescriptionUpload';
 import ChildVaccine from './components/ChildVaccine';
-import CalorieCount from './components/CalorieCount';
 import ManageAppointments from './components/ManageAppointments';
+import CalorieCount from'./components/CalorieCount';
+
+//Creating stack navigator.
 const Stack = createStackNavigator();
 
-
+//Indicating main component.
 export default function App() {
   return (
+    //It is used for managing navigation state for whole app.
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
         <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
           <Stack.Screen name="PatientHome" component={PatientHome} options={{ headerShown: false }}/>
           <Stack.Screen name="SignupPage" component={SignupPage} options={{ headerShown: false }}/>
           <Stack.Screen name="AppointmentBooking" component={AppointmentBooking} options={{ headerShown: false }}/>
-          <Stack.Screen name="ManageAppointments" component={ManageAppointments} options={{ headerShown: false }}/>
           <Stack.Screen name="SearchDoctor" component={SearchDoctor} options={{ headerShown: false }}/>
           <Stack.Screen name="MedicationReminder" component={MedicationReminder} options={{ headerShown: false }}/>
           <Stack.Screen name="LabTestBooking" component={LabTestBooking} options={{ headerShown: false }}/>
@@ -43,6 +46,7 @@ export default function App() {
           <Stack.Screen name="DietDisplay" component={DietDisplay} options={{ headerShown: false }}/>
           <Stack.Screen name="PrescriptionUpload" component={PrescriptionUpload} options={{ headerShown: false }}/>
           <Stack.Screen name="ChildVaccine" component={ChildVaccine} options={{ headerShown: false }}/>
+          <Stack.Screen name="ManageAppointments" component={ManageAppointments} options={{ headerShown: false }}/>
           <Stack.Screen name="CalorieCount" component={CalorieCount} options={{ headerShown: false }}/>
       </Stack.Navigator>
     </NavigationContainer>

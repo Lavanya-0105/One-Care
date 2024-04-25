@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import Footer from './Footer';
 
 const SymptomsTracker = ({ navigation, route }) => {
   const [symptoms, setSymptoms] = useState('');
@@ -8,20 +9,21 @@ const SymptomsTracker = ({ navigation, route }) => {
   const { email } = route.params;
 
   const handleTrackSymptoms = () => {
-    if (symptoms.trim() === '') {
-      setError('Please enter symptoms.');
+    if (symptoms.trim() === '') {  // Checking symptoms are available or not.
+      setError('Symptoms are empty, please enter symptoms.');
       setResults([]);
     } else {
       setError('');
+      //If available then these symptoms are posted for prediction of disease.
       fetch('http://127.0.0.1:5000/symptom_checker', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ symptoms: symptoms })
+        body: JSON.stringify({ symptoms: symptoms }) //Sending symptoms in Json format.
       })
-      .then(response => response.json())
-      .then(data => {
+      .then(response => response.json()) //After getting responsre it is analyzed.
+      .then(data => { //It is handled and after that predicted result is push data to predicted disease.
         setResults(data.predicted_disease ? [data.predicted_disease] : []);
       })
       .catch(error => {
@@ -38,6 +40,9 @@ const SymptomsTracker = ({ navigation, route }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+      <TouchableOpacity onPress={handleBack}>
+        <Text style={styles.backButton}>Back</Text>
+      </TouchableOpacity>
       <Image source={require('../assets/SymptomsTracker.png')} style={styles.image} />
       <Text style={styles.heading}> Symptom Tracker</Text>
       <Text style={styles.description}>
@@ -55,20 +60,19 @@ const SymptomsTracker = ({ navigation, route }) => {
           <Text style={styles.buttonText}>Track Symptoms</Text>
         </TouchableOpacity>
       </View>
-
+      {/* Displaying error message if anything occured.*/}
       {error ? (
         <Text style={styles.errorText}>{error}</Text>
       ) : results.length > 0 ? (
+        //Displaying the predicted result that obtained from above.
         <View style={styles.resultsContainer}>
-          <Text style={styles.resultsHeading}>Predicted Disease:</Text>
+          <Text style={styles.resultsHeading}>Predicted Disease For Given Symptoms is:</Text>
           {results.map((disease, index) => (
             <Text key={index} style={styles.resultsText}>{disease}</Text>
           ))}
         </View>
       ) : null}
-      <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-        <Text style={styles.backButtonText}>Back</Text>
-      </TouchableOpacity>
+      <Footer />
     </ScrollView>
   );
 };
@@ -120,7 +124,6 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontSize: 14,
-    fontWeight: 'bold',
   },
   resultsContainer: {
     width: '100%',
@@ -139,15 +142,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   backButton: {
-    padding: 10,
-    backgroundColor: '#ccc',
-    borderRadius: 5,
-    marginTop: 20,
-  },
-  backButtonText: {
-    color: '#333',
-    fontSize: 16,
-    fontWeight: 'bold',
+    color: '#0954a5',
+    fontSize: 18,
+    right:'620px',
   },
 });
 

@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     flexDirection: 'row',
-    marginTop: 10, // Adjust margin as needed
+    marginTop: 10, 
   },
   bookAppointmentButton: {
     backgroundColor: '#0954a5',
@@ -258,11 +258,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     flexWrap: 'wrap',
-    marginBottom: 20, // Added marginBottom for some spacing between rows
+    marginBottom: 20, 
   },
 
   infoCard: {
-    width: '48%', // Adjusted width to fit two cards in a row with some space in between
+    width: '48%', 
     marginBottom: 20,
     borderRadius: 15,
     backgroundColor: '#fff',

@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet,TouchableOpacity } from 'react-native';
+import Footer from './Footer';
 
-// NutritionFacts component
+//The below part is used for displaying nurition available in that ingredient with quantity. 
 const NutritionFacts = ({ data }) => {
   return (
     <View style={styles.nutritionFacts}>
-  
       <Text style={styles.level1}>Nutrition Facts</Text>
-      <View style={styles.line}></View> {/* Line or bar */}
+      <View style={styles.line}></View> 
       <Text style={styles.level2}>Amount Per Serving</Text>
       <Text style={styles.level0}>Calories: {data?.totalNutrients?.ENERC_KCAL?.quantity?.toFixed(0) ?? 'N/A'}</Text>
-      <View style={styles.line}></View> {/* Line or bar */}
+      <View style={styles.line}></View> 
       <Text style={styles.level2}>Total Fat: {data?.totalNutrients?.FAT?.quantity?.toFixed(2) ?? 'N/A'} g </Text>
       <View style={styles.line2}></View>
       <Text style={styles.level3}>Saturated Fat: {data?.totalNutrients?.FASAT?.quantity?.toFixed(2) ?? 'N/A'} g </Text>
@@ -36,47 +36,51 @@ const NutritionFacts = ({ data }) => {
       <Text style={styles.level3}>Iron: {data?.totalNutrients?.FE?.quantity?.toFixed(2) ?? 'N/A'} mg </Text>
       <View style={styles.line2}></View>
       <Text style={styles.level3}>Potassium: {data?.totalNutrients?.K?.quantity?.toFixed(2) ?? 'N/A'} mg </Text>
-      <View style={styles.line2}></View>
-</View>
-
+      <View style={styles.line2}></View> 
+    </View>
   );
 };
 
 
-// Parent component
-const CalorieCalculator = () => {
- 
+function CalorieCalculator({ route, navigation }) {
+  const { email } = route.params;
   const [ingredient, setIngredient] = useState('');
   const [responseText, setResponseText] = useState(null);
 
+
+  //This function get information from other site using API.
   const fetchCalories = async () => {
     try {
-      const response = await fetch(
+      const response = await fetch(   //Taking the ingredients and using that to fetch nutrition from that API.
         `https://api.edamam.com/api/nutrition-data?app_id=4b56be63&app_key=5158733d31c5f697c8007a005c49fd29&ingr=${ingredient}`
       );
       const data = await response.json();
-      setResponseText(data);
+      setResponseText(data); //Adding that response data its state.
     } catch (error) {
       console.error(error);
     }
   };
 
+  const back = () => {
+    navigation.navigate('PatientHome', { email: email });
+  };
+
   return (
     <View style={styles.container}>
-      <text style={styles.input1}> What ingredient would you like to know more about? </text>
-      
-      <text style={styles.input1}>Enter an ingredient like "1 cup rice, 10 oz chickpeas,1 gram chana,1 whole egg", etc.</text>
+      <TouchableOpacity onPress={back}>
+        <Text style={styles.backButton}>Back</Text>
+      </TouchableOpacity>
+      <Text style={styles.input1}> What ingredient would you like to know more about? </Text>
+      <Text style={styles.input1}>Enter an ingredient like "1 cup rice, 10 oz chickpeas,1 gram chana,1 whole egg", etc.</Text>
       <TextInput
         style={[styles.input, { marginTop: 20 }]}
         placeholder="Eg: 10gms Chicken"
         value={ingredient}
         onChangeText={setIngredient}
       />
-      
       <Button title="Calculate Calories" onPress={fetchCalories} />
       {responseText && <NutritionFacts data={responseText} />}
-      
-      
+      <Footer />
     </View>
   );
 };
@@ -88,22 +92,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingLeft:10,
-    
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
-    
     padding: 10,
     marginBottom: 10,
     width: '100%',
   },
   input1: {
-    
     borderColor: '#ccc',
     borderRadius: 5,
     padding: 10,
-    
     width: '100%',
     fontWeight:'bold',
   },
@@ -112,38 +112,11 @@ const styles = StyleSheet.create({
     textAlign:'center',
     fontWeight:'bold',
     marginBottom:10,
-
-
-  },
-  level0:{
-    fontSize: 35,
-    textAlign:'center',
-    fontWeight:'bold',
-    marginBottom:10,
-  },
-  level2:{
-    fontSize: 16,
-    
-    fontWeight:'bold',
-    marginBottom:10,
-
-  },
-  level3:{
-    fontSize: 18,
-    paddingLeft:30,
-    
-    marginBottom:10,
-
   },
   line: {
     borderBottomWidth: 8,
     borderBottomColor: 'rgb(200,200,200)',
     marginBottom: 20,
-  },
-  line2: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    marginBottom: 10,
   },
   nutritionFacts: {
     marginTop: 20,
@@ -152,6 +125,11 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 5,
     width:'30%',
+  },
+  backButton: {
+    fontSize: 18,
+    color: '#0954a5',
+    right:'620px',
   },
 });
 

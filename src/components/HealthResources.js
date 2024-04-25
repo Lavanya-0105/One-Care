@@ -1,17 +1,14 @@
 import React from 'react';
 import { StyleSheet, View, Text, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import Footer from './Footer';
 
-const InfoCard = ({ imageSource, onPress }) => (
-  <TouchableOpacity style={styles.infoCard} onPress={onPress}>
+const InfoCard = ({ title, description, imageSource }) => (
+  <TouchableOpacity style={styles.infoCard}>
     <Image source={imageSource} style={styles.infoCardImage} />
+    <Text style={styles.infoCardTitle}>{title}</Text>
+    <Text style={styles.infoCardDescription}>{description}</Text>
   </TouchableOpacity>
-);
-
-const Footer = () => (
-  <View style={styles.footer}>
-    <Text style={styles.footerText}>© 2024 OneCare. All Rights Reserved.</Text>
-  </View>
 );
 
 const HealthResources = ({ route }) => {
@@ -21,7 +18,7 @@ const HealthResources = ({ route }) => {
   const handleGoBack = () => {
     navigation.goBack({ email });
   };
-
+//This code is almost similar to patient home page and names and few changes have made in it.
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={handleGoBack}>
@@ -32,24 +29,26 @@ const HealthResources = ({ route }) => {
       <View style={styles.infoCardsContent}>
         <View style={styles.infoCardsRow}>
           <InfoCard
-            imageSource={require('../assets/HealthResources/first.png')}
+           title="Fitness Workouts"
+           description="Discover effective fitness workouts to stay active and improve your physical health."
+           imageSource={require('../assets/HealthResources/first.png')}
           />
           <InfoCard
-            imageSource={require('../assets/HealthResources/second.png')}
+          title="Nutrition Tips"
+          description="Explore valuable nutrition tips to maintain a healthy diet and lifestyle."
+          imageSource={require('../assets/HealthResources/second.png')}
           />
           <InfoCard
-            imageSource={require('../assets/HealthResources/third.png')}
+          title="Healthy Routine"
+          description="Learn tips to leed healthy and happy life."
+          imageSource={require('../assets/HealthResources/third.png')}
           />
         </View>
         <View style={styles.infoCardsRow}>
           <InfoCard
-            imageSource={require('../assets/HealthResources/fourth.png')}
-          />
-          <InfoCard
-            imageSource={require('../assets/HealthResources/fourth.png')}
-          />
-          <InfoCard
-            imageSource={require('../assets/HealthResources/fourth.png')}
+           title="Mental Wellness"
+           description="Learn about mental wellness and find resources to support your mental health."
+           imageSource={require('../assets/HealthResources/fourth.png')}
           />
         </View>
       </View>
@@ -94,36 +93,24 @@ const styles = StyleSheet.create({
     padding: 30,
     borderWidth: 1,
     borderColor: 'black',
-    elevation: 10, // Add shadow for elevation effect
+    elevation: 10, 
   },
   infoCardTitle: {
     color: 'blue',
-    fontSize: 48,
+    fontSize: 24, 
     fontWeight: 'bold',
-    marginBottom: 40,
+    marginBottom: 20, 
     textAlign: 'center',
   },
   infoCardDescription: {
     color: 'light-blue',
-    fontSize: 36,
+    fontSize: 18, 
     textAlign: 'center',
   },
-  footer: {
-    position: 'absolute',
-    bottom: 1,
-    width: '100%',
-    backgroundColor: '#f8f8f8',
-    padding: 3,
-    alignItems: 'center',
-  },
-  footerText: {
-    color: '#00000',
-    fontSize: 16,
-  },
   infoCardImage: {
-    width: 300,
-    height: 300,
-    marginBottom: 100,
+    width: 200, 
+    height: 200, 
+    marginBottom: 20, 
     alignSelf: 'center',
   },
 });

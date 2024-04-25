@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import Footer from '../components/Footer';
-// Import your image
 const bannerImage = require('../assets/DietDisplayBanner.jpeg');
 
-const DietDisplay = ({ navigation }) => {
-
+//The pages contains all functionalities of other pages. 
+function DietDisplay({ route, navigation }) {
+  const { email } = route.params;
   const [selectedCondition, setSelectedCondition] = useState('');
   const [dietPlan, setDietPlan] = useState('');
-
+//The below dietplan opens after selecting any option based on that it will open.
   const dietPlans = {
     diabetes: {
       breakfast: 'Oatmeal with berries and nuts',
@@ -59,19 +59,15 @@ const DietDisplay = ({ navigation }) => {
   };
 
   const back = () => {
-    navigation.navigate('PatientHome');
+    navigation.navigate('PatientHome', { email: email });
   };
 
   return (
-    <View style={styles.container}>
-      
-    
-      <TouchableOpacity onPress={back} style={styles.backButton}>
-        <Text style={styles.backButtonText}>Back</Text>
+    <View style={styles.container}>  
+      <TouchableOpacity onPress={back}>
+        <Text style={styles.backButton}>Back</Text>
       </TouchableOpacity>
       <Image source={bannerImage} style={styles.banner} />
-
-
       <Text style={styles.header}>Select Medical Condition:</Text>
       <Picker
         selectedValue={selectedCondition}
@@ -85,7 +81,6 @@ const DietDisplay = ({ navigation }) => {
         <Picker.Item label="Obesity" value="obesity" />
         <Picker.Item label="Heart Disease" value="heartDisease" />
       </Picker>
-      
       {selectedCondition && (
         <View style={styles.dietContainer}>
           <Text style={styles.dietHeader}>Diet Plan:</Text>
@@ -115,14 +110,9 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   backButton: {
-    position: 'absolute',
-    top: 20,
-    left: 10,
-    zIndex: 1,
-  },
-  backButtonText: {
-    fontSize: 20,
-    color: 'Black',
+    fontSize: 18,
+    color: '#0954a5',
+    right:'620px',
   },
   header: {
     fontSize: 20,
